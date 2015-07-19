@@ -5,9 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/SplitItUp.iml" filepath="$PROJECT_DIR$/SplitItUp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/libs.iml" filepath="$PROJECT_DIR$/libs/libs.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libs/libs.iml" filepath="$PROJECT_DIR$/libs/libs.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libs/tess-two/tess-two.iml" filepath="$PROJECT_DIR$/libs/tess-two/tess-two.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libs/tess-two/tess-two.iml" filepath="$PROJECT_DIR$/libs/tess-two/tess-two.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/tess-two/tess-two.iml" filepath="$PROJECT_DIR$/libs/tess-two/tess-two.iml" />
     </modules>
   </component>

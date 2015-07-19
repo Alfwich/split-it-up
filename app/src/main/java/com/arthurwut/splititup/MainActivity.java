@@ -1,21 +1,26 @@
 package com.arthurwut.splititup;
 
-import android.content.Intent;
+import android.app.ActionBar;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-
+import android.view.ScaleGestureDetector;
+import android.widget.FrameLayout;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 
 
 public class MainActivity extends ActionBarActivity {
@@ -69,24 +74,22 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    private static final int CONTENT_VIEW_ID = 10101010;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*
-        copyAssets();
-        File f = new File(Environment.getExternalStorageDirectory().toString() + "/split-it/tessdata" );
-        File[] files = f.listFiles();
-        if( files != null ) {
-            for (File inFile : files) {
-                Log.d("@@@", inFile.getName());
-            }
-        }
-        */
-        setContentView(R.layout.activity_main);
-    }
+        FrameLayout frame = new FrameLayout(this);
+        frame.setId(CONTENT_VIEW_ID);
+        setContentView(frame, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
-    Bitmap bmp = null;
+        if (savedInstanceState == null) {
+            Fragment newFragment = new MainActivityFragment();
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.add(CONTENT_VIEW_ID, newFragment).commit();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
