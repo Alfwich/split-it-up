@@ -22,6 +22,13 @@
         android:layout_x="160dip"
         android:layout_y="10dip"
         android:id="@+id/mainOCRImage" />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/orcTextView"
+        android:layout_y="60dip"
+        android:layout_x="60dip"
+        android:layout_marginTop="50dip"/>
 
     <AbsoluteLayout
         android:layout_width="1000dip"
@@ -36,5 +43,8 @@
             android:id="@+id/mainImageView"
             android:src="@drawable/test" />
     </AbsoluteLayout>
+
+
+
 
 </AbsoluteLayout>

@@ -22,6 +22,7 @@ import android.widget.AbsoluteLayout;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -54,8 +55,8 @@ public class MainActivityFragment extends android.app.Fragment implements View.O
                     b.init(Environment.getExternalStorageDirectory() + "/split-it", "eng");
                     Bitmap bmp = scaleDown(BitmapFactory.decodeFile(imageFile.toString()), 500.0f, true);
                     b.setImage(bmp);
-                    //TextView txt = (TextView) getView().findViewById(R.id.orcTextView);
-                    //txt.setText( b.getUTF8Text() );
+                    TextView txt = (TextView) getView().findViewById(R.id.orcTextView);
+                    txt.setText( b.getUTF8Text() );
                     Log.d("@@@", b.getUTF8Text());
                 }
                 break;
@@ -126,12 +127,6 @@ public class MainActivityFragment extends android.app.Fragment implements View.O
                 iLay.setX(0.0f);
                 iLay.setY(0.0f);
                 iView.setImageBitmap(bmp);
-                /*
-                iView.getLayoutParams().width = bmp.getWidth()*10;
-                iView.getLayoutParams().height = bmp.getHeight()*10;
-
-                iView.requestLayout();
-                */
                 Log.d("@@@", "Returned to activity from picture-intent");
             }
         }
@@ -163,6 +158,7 @@ public class MainActivityFragment extends android.app.Fragment implements View.O
     }
 
 
+    private ImageView iv;
     private float dX = 0.0f, dY = 0.0f;
 
     @Override
@@ -174,15 +170,18 @@ public class MainActivityFragment extends android.app.Fragment implements View.O
                 dY = v.getY() - ev.getRawY();
                 Log.d("@@@", "CONSIDER TAP PLACEMENT?");
 
-                ImageView iv = new ImageView( v.getContext() );
-                iv.setImageResource( R.drawable.red_box );
-                iv.setX(ev.getRawX() - v.getX());
-                iv.setY(ev.getRawY() - v.getY());
-                iv.setBackgroundColor(Color.RED);
-                iv.setScaleType(ImageView.ScaleType.FIT_START);
                 AbsoluteLayout al = (AbsoluteLayout) v;
-                al.addView( iv );
-
+                if( iv == null ) {
+                    iv = new ImageView(v.getContext());
+                    iv.setImageResource(R.drawable.red_box);
+                    iv.setScaleType(ImageView.ScaleType.FIT_START);
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(200, 100);
+                    iv.setLayoutParams(layoutParams);
+                    al.addView( iv );
+                }
+                iv.setX(ev.getRawX() - v.getX()-110);
+                iv.setY((ev.getRawY() - v.getY())-290);
+                iv.invalidate();
                 al.invalidate();
                 break;
 
