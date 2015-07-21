@@ -1,6 +1,7 @@
 package com.arthurwut.splititup;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -23,7 +24,7 @@ import java.io.OutputStream;
 
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
 
     private void copyAssets() {
         AssetManager assetManager = getAssets();
