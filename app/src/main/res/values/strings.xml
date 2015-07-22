@@ -2,4 +2,7 @@
     <string name="app_name">Split-It-Up</string>
     <string name="action_settings">Settings</string>
     <string name="load_button">Load Image Above</string>
+    <color name="red">#FF0000</color>
+    <color name="green">#00FF00</color>
+    <color name="blue">#0000FF</color>
 </resources>

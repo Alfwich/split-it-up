@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="2dip"
+    >
+    <Button
+        android:id="@+id/totalViewRed"
+        android:layout_width="match_parent"
+        android:layout_height="80dip"
+        android:text="0.00"
+        android:background="@color/red">
+    </Button>
+    <Button
+        android:layout_below="@id/totalViewRed"
+        android:id="@+id/totalViewGreen"
+        android:layout_width="match_parent"
+        android:layout_height="80dip"
+        android:background="@color/green"
+        android:layout_marginTop="5dip"
+        android:text="0.00">
+    </Button>
+    <Button
+        android:layout_below="@id/totalViewGreen"
+        android:id="@+id/totalViewBlue"
+        android:layout_width="match_parent"
+        android:layout_height="80dip"
+        android:background="@color/blue"
+        android:layout_marginTop="5dip"
+        android:text="0.00">
+    </Button>
+</RelativeLayout>

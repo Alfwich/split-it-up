@@ -1,16 +1,18 @@
 package com.arthurwut.splititup;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,83 +21,62 @@ import android.widget.AbsoluteLayout;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.googlecode.tesseract.android.TessBaseAPI;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
+public class MainActivityFragment extends android.app.Fragment  {
 
-/**
- * A placeholder fragment containing a simple view.
- */
-public class MainActivityFragment extends android.app.Fragment {
-
-    public MainActivityFragment() {
-    }
-
-    private TotalSummer sum;
-
-    TessBaseAPI tessBase;
-    private Bitmap nBmp;
     private File imageFile;
     private Bitmap bmp;
     private View view;
+    private MainOCRServiceReceiver reciever;
+    private Intent ocrIntent;
 
     private ImageView exampleImageView;
     private ImageView mainImageView;
     private AbsoluteLayout absLayoutView;
     private TextView ocrTextView;
-    private TextView totalText;
+    private TotalView totalView;
+
+    public MainActivityFragment() {
+    }
+
+    public class MainOCRServiceReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+
+            float value = bundle.getFloat( Constants.DATA_OCR_FLOAT_VALUE );
+            Log.d("@@@", "RESULT FROM SERVICE INTENT: " + Float.toString(value));
+
+            ocrTextView.setText(Float.toString(value));
+            totalView.setValue(value);
+        }
+    }
 
     private class PreviewImageTouchListener implements View.OnTouchListener {
 
         public float dX = 0.0f, dY = 0.0f;
 
-        private Bitmap cropBitmap( Bitmap src, int x, int y, int width, int height ) {
-            x -= width/2;
-            y -= height/2;
-
-            if( x < 0 ) {
-                x = 0;
-            }
-
-            if (y < 0) {
-                y = 0;
-            }
-
-            if( width > src.getWidth() ) {
-                width = src.getWidth();
-            }
-
-            if( height > src.getHeight() ) {
-                height = src.getHeight();
-            }
-
-            if( x+width > src.getWidth() ) {
-                x = src.getWidth()-width;
-            }
-
-            if( y+height > src.getHeight() ) {
-                y = src.getHeight()-height;
-            }
-
-            return Bitmap.createBitmap( src, x, y, width, height );
-        }
-
         public void reloadExampleBitmap( MotionEvent event ) {
             if(  bmp != null ) {
                 float factor = (float) bmp.getHeight() / mainImageView.getHeight();
-                nBmp = cropBitmap(
-                        bmp,
-                        Math.round(( -absLayoutView.getX() + event.getRawX()) * factor),
-                        Math.round(( -absLayoutView.getY() + event.getRawY()) * factor),
-                        200,
-                        50
-                );
 
-                exampleImageView.setImageBitmap(nBmp);
-                tessBase.setImage(nBmp);
+                int x = Math.round((-absLayoutView.getX() + event.getRawX()) * factor),
+                    y = Math.round((-absLayoutView.getY() + event.getRawY()) * factor),
+                    width = 200,
+                    height = 50;
+
+                ocrIntent.putExtra( "x", x );
+                ocrIntent.putExtra( "y", y );
+                ocrIntent.putExtra("time", System.currentTimeMillis());
+                getActivity().startService(ocrIntent);
+
+                exampleImageView.setImageBitmap(BitmapCropper.cropBitmap(bmp, x, y, width, height));
             }
         }
 
@@ -106,7 +87,7 @@ public class MainActivityFragment extends android.app.Fragment {
                 case MotionEvent.ACTION_DOWN:
                     dX = v.getX() - event.getRawX();
                     dY = v.getY() - event.getRawY();
-                    reloadExampleBitmap( event );
+                    reloadExampleBitmap(event);
                     break;
 
                 case MotionEvent.ACTION_MOVE:
@@ -122,42 +103,12 @@ public class MainActivityFragment extends android.app.Fragment {
         }
     }
 
-    private class TotalSummer {
-        private float total = 0.0f;
-
-        public void addValue( float v ) {
-            total += v;
-            totalText.setText(String.format("%.2f", total));
-        }
-
-        public void addValue( String v ) {
-            String[] parts = v.split("\\.");
-
-            if( parts.length > 1 ) {
-                v = parts[0] + "." + parts[1];
-                try {
-                    addValue(Float.parseFloat(v));
-                }catch( NumberFormatException x ) {
-                    Log.e( "@@@", "Could not extract float value from OCR result!" );
-                }
-            }
-
-        }
-
-    }
-
     private class ClickEvents implements View.OnClickListener {
         public void onClick( View v ) {
 
             switch( v.getId() ) {
                 case R.id.mainTakePicture:
                     dispatchTakePictureIntent();
-                    break;
-
-                case R.id.mainExampleImageView:
-                    String val = tessBase.getUTF8Text();
-                    ocrTextView.setText(val);
-                    sum.addValue(val);
                     break;
             }
 
@@ -205,8 +156,8 @@ public class MainActivityFragment extends android.app.Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             if( imageFile != null ) {
-                //Bitmap bmp = scaleDown(BitmapFactory.decodeFile(imageFile.toString()), 500.0f, true);
                 bmp = BitmapFactory.decodeFile(imageFile.toString());
+                ocrIntent.putExtra("imageUrl", ( imageFile != null ) ? imageFile.toString() : "" );
                 AbsoluteLayout iLay = (AbsoluteLayout) getView().findViewById( R.id.mainImageViewContainer);
                 iLay.setX(0.0f);
                 iLay.setY(0.0f);
@@ -236,17 +187,19 @@ public class MainActivityFragment extends android.app.Fragment {
 
             mainImageView = (ImageView) view.findViewById(R.id.mainImageView);
             ocrTextView = (TextView) view.findViewById(R.id.mainOCRTextView);
-            totalText = (TextView) view.findViewById(R.id.mainSumTotal);
+            totalView = (TotalView) view.findViewById(R.id.mainTotalView);
 
             Button btn = (Button) view.findViewById( R.id.mainTakePicture );
             btn.setOnClickListener(new ClickEvents());
 
             bmp = BitmapFactory.decodeResource( getResources(), R.drawable.test );
 
-            tessBase = new TessBaseAPI();
-            tessBase.init(Environment.getExternalStorageDirectory() + "/split-it", "eng");
+            reciever = new MainOCRServiceReceiver();
+            ocrIntent = new Intent( getActivity(), OCREvalService.class );
+            ocrIntent.putExtra("imageUrl", "" );
 
-            sum = new TotalSummer();
+            IntentFilter filter = new IntentFilter( Constants.BROADCAST_ACTION );
+            LocalBroadcastManager.getInstance(getActivity()).registerReceiver(reciever, filter);
         }
 
         return view;
