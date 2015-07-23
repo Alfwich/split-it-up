@@ -8,12 +8,11 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class TotalView extends LinearLayout {
 
     private ArrayList<TotalSummer> sums;
-    private ArrayList<Button> buttons;
-    private int currentPosition;
     private float currentValue;
 
     public TotalView(Context context) {
@@ -37,21 +36,39 @@ public class TotalView extends LinearLayout {
         public void onClick(View v) {
             switch( v.getId() ){
                 case R.id.totalViewRed:
-                    currentPosition = 0;
-                    addValueToSum(1);
+                    changeValue(0, currentValue);
                     break;
 
                 case R.id.totalViewGreen:
-                    currentPosition = 1;
-                    addValueToSum(1);
+                    changeValue(1, currentValue);
                     break;
 
                 case R.id.totalViewBlue:
-                    currentPosition = 2;
-                    addValueToSum(1);
+                    changeValue(2, currentValue);
                     break;
 
+                case R.id.totalViewRedUndo:
+                    undoValue(0);
+                    break;
+
+                case R.id.totalViewGreenUndo:
+                    undoValue(1);
+                    break;
+
+                case R.id.totalViewBlueUndo:
+                    undoValue(0);
+                    break;
             }
+        }
+    }
+
+    private class TotalClickAction {
+        public int sumId;
+        public float delta;
+
+        TotalClickAction( int sumId, float delta ) {
+            this.sumId = sumId;
+            this.delta = delta;
         }
     }
 
@@ -60,24 +77,26 @@ public class TotalView extends LinearLayout {
         inflater.inflate(R.layout.total_view, this, true);
 
         sums = new ArrayList<>();
-        sums.add(new TotalSummer());
-        sums.add(new TotalSummer());
-        sums.add(new TotalSummer());
-        currentPosition = 0;
+
+        Button redButton     = (Button) getRootView().findViewById( R.id.totalViewRed);
+        Button redButtonUndo = (Button) getRootView().findViewById( R.id.totalViewRedUndo);
+        redButton.setOnClickListener(new TotalViewClickHandler());
+        redButtonUndo.setOnClickListener(new TotalViewClickHandler());
+        sums.add(new TotalSummer(redButton));
+
+        Button greenButton     = (Button) getRootView().findViewById( R.id.totalViewGreen);
+        Button greenButtonUndo = (Button) getRootView().findViewById( R.id.totalViewGreenUndo);
+        greenButton.setOnClickListener(new TotalViewClickHandler());
+        greenButtonUndo.setOnClickListener(new TotalViewClickHandler());
+        sums.add(new TotalSummer(greenButton));
+
+        Button blueButton     = (Button) getRootView().findViewById( R.id.totalViewBlue);
+        Button blueButtonUndo = (Button) getRootView().findViewById( R.id.totalViewBlueUndo);
+        blueButton.setOnClickListener(new TotalViewClickHandler());
+        blueButtonUndo.setOnClickListener(new TotalViewClickHandler());
+        sums.add(new TotalSummer( blueButton ));
+
         currentValue = 0.0f;
-
-        buttons = new ArrayList<>();
-        Button redButton   = (Button) getRootView().findViewById( R.id.totalViewRed);
-        redButton.setOnClickListener( new TotalViewClickHandler() );
-        buttons.add( redButton );
-
-        Button greenButton = (Button) getRootView().findViewById( R.id.totalViewGreen);
-        greenButton.setOnClickListener( new TotalViewClickHandler() );
-        buttons.add( greenButton );
-
-        Button blueButton  = (Button) getRootView().findViewById( R.id.totalViewBlue);
-        blueButton.setOnClickListener( new TotalViewClickHandler() );
-        buttons.add( blueButton );
     }
 
     @Override
@@ -91,13 +110,17 @@ public class TotalView extends LinearLayout {
         this.currentValue = value;
     }
 
-    public void addValueToSum( int magnitude ) {
-        TotalSummer s = sums.get( currentPosition );
-        Button b = buttons.get( currentPosition );
-        if( s != null && b != null ) {
-            s.addValue( currentValue * magnitude );
-            b.setText( Float.toString( s.getValue() ) );
-            b.requestLayout();
+    public void changeValue(int position, float delta ) {
+        TotalSummer s = sums.get( position );
+        if( s != null ) {
+            s.addValue(delta);
+        }
+    }
+
+    public void undoValue( int position ) {
+        TotalSummer s = sums.get( position );
+        if( s != null ) {
+            s.undoLast();
         }
     }
 }
