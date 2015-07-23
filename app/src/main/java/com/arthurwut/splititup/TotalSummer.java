@@ -27,7 +27,7 @@ public class TotalSummer {
 
     private void updateTextView() {
         if( outputView != null ) {
-            outputView.setText( String.format( "%.2f", total) );
+            outputView.setText( String.format( "%.02f", total ) );
             outputView.requestLayout();
         }
     }
