@@ -56,7 +56,7 @@ public class TotalView extends LinearLayout {
                     break;
 
                 case R.id.totalViewBlueUndo:
-                    undoValue(0);
+                    undoValue(2);
                     break;
             }
         }
